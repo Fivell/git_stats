@@ -8,7 +8,9 @@
       :plain
         body { padding-top: 60px; }
     %link{:rel => "stylesheet", :href => asset_path('bootstrap/css/bootstrap-responsive.min.css', active_page), :type => "text/css"}
+    %link{:rel => "stylesheet", :href => asset_path('jstree/themes/default/style.min.css', active_page), :type => "text/css"}
     %script{:src => asset_path('jquery.min.js', active_page), :type => "text/javascript"}
+    %script{:src => asset_path('jstree/jstree.min.js', active_page), :type => "text/javascript"}
     %script{:src => asset_path('bootstrap/js/bootstrap.min.js', active_page), :type => "text/javascript"}
     %script{:src => asset_path('highstock.js', active_page), :type => "text/javascript"}
   %body
@@ -25,5 +27,19 @@
               - links.each do |name, href|
                 %li{:class => active_page[name.to_s.underscore] ? "active" : ""}
                   %a{:href => link_to(href, active_page)}= name.t
-    %div.container
-      = yield
+    %div.container-fluid
+      %div.row-fluid
+        %div{:class => "span2", :id => "jstree_demo_div"}
+          :javascript
+            $('#jstree_demo_div').jstree({
+              'core' : {
+                'data' : [
+                  #{tree_view_json(active_page)}
+                ]
+              },
+              'plugins' : ['state']  });
+            $('#jstree_demo_div').on("changed.jstree", function (e, data) {
+              window.location = data.node.a_attr.href
+            });
+        %div.span10
+          = yield

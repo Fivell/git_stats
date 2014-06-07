@@ -6,15 +6,17 @@ module GitStats
     class Repo
       include HashInitializable
 
-      attr_reader :path, :first_commit_sha, :last_commit_sha, :tree_path
+      attr_reader :path, :first_commit_sha, :last_commit_sha, :tree_path, :parent
 
       delegate :files, :files_by_extension, :files_by_extension_count, :lines_by_extension,
-               :files_count, :binary_files, :text_files, :lines_count, to: :last_commit
+               :files_count, :binary_files, :text_files, :lines_count, :trees, to: :last_commit
 
       def initialize(params)
         super(params)
         @path = File.expand_path(@path)
+        @tree = {}
         @tree_path ||= "."
+        puts "creating repo: #{@tree_path} (parent: #{parent})"
       end
 
       def authors
@@ -88,8 +90,12 @@ module GitStats
         @project_version ||= run("git rev-parse --short #{commit_range}").strip
       end
 
-      def tree
-        @tree ||= Tree.new(repo: self, relative_path: @tree_path)
+      def tree(repo_tree_path)
+        @tree[repo_tree_path] ||= Repo.new(path: path,
+                                 first_commit_sha: first_commit_sha,
+                                 last_commit_sha: last_commit_sha,
+                                 tree_path: repo_tree_path,
+                                 parent: self)
       end
 
       def project_name
@@ -104,6 +110,7 @@ module GitStats
       end
 
       def run_and_parse(command)
+        # puts "In dir: #{path} executing: #{command}"
         result = run(command)
         command_parser.parse(command, result)
       end
@@ -122,7 +129,7 @@ module GitStats
       end
 
       def to_s
-        "#{self.class} #@path"
+        "#{self.class} #@path #@tree_path"
       end
 
       def ==(other)

@@ -2,6 +2,10 @@
 require 'spec_helper'
 
 describe GitStats::GitData::Tree do
+  let(:repo) { double }
+  let(:subdir1_tree) { GitStats::GitData::Tree.new(filename: 'subdir1', sha: 'hash_subdir1', repo: repo) }
+  let(:subdir2_tree) { GitStats::GitData::Tree.new(filename: 'subdir2', sha: 'hash_subdir2', repo: repo) }
+
   let(:repo) { build(:test_repo_tree, tree_path: '.') }
   let(:repo_tree) { build(:test_repo_tree, tree_path: './subdir_with_1_commit') }
   let(:tree) { build(:tree, repo: repo_tree, relative_path: './subdir_with_1_commit') }

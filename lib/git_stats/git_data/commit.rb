@@ -8,6 +8,12 @@ module GitStats
 
       attr_reader :repo, :sha, :stamp, :date, :author
 
+      def trees
+        @trees ||= (repo.run_and_parse("git ls-tree -d -r #{self.sha} -- #{repo.tree_path}").map do |file|
+          Tree.new(repo: repo, filename: file[:filename], sha: file[:sha])
+        end).extend(ByFieldFinder)
+      end
+
       def files
         @files ||= repo.run_and_parse("git ls-tree -r #{self.sha} -- #{repo.tree_path}").map do |file|
           Blob.new(repo: repo, filename: file[:filename], sha: file[:sha])

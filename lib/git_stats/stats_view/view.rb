@@ -2,8 +2,9 @@
 module GitStats
   module StatsView
     class View
-      def initialize(view_data, out_path)
-        @view_data, @out_path = view_data, out_path
+      attr_reader :view_data
+      def initialize(view_data, out_path, assets_path = nil)
+        @view_data, @out_path, @assets_path = view_data, out_path, (assets_path || out_path)
         @layout = Tilt.new("../../../../templates/layout.haml".absolute_path)
       end
 
@@ -69,7 +70,7 @@ module GitStats
       end
 
       def prepare_assets
-        FileUtils.cp_r('../../../../templates/assets'.absolute_path, @out_path)
+        FileUtils.cp_r('../../../../templates/assets'.absolute_path, @assets_path)
       end
 
     end
